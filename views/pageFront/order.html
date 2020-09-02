@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Nectaria - Free HTML Template by WowThemes.net</title>
+	<meta name="description" content="Thoughts, reviews and ideas since 1999." />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" href="/PID_Assignment/views/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="/PID_Assignment/views/css/screen.css" />
+	<link rel="stylesheet" type="text/css"
+		href="https://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,700,700italic|Playfair+Display:400,700,400italic,700italic" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/PID_Assignment/views/css/list.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<style>
+	ul {
+		list-style-type: none;
+	}
+</style>
+<script>
+	//防止沒登入導入這，倒入這就直接回首頁
+	$.ajax({
+		type: "GET",
+		url: "/PID_Assignment/member/getSessionUserName"
+	}).then(function (e) {
+		if (e.length <= 0) {
+			window.location.href = "/PID_Assignment/views/pageFront/index_.html";
+		}
+	});
+</script>
+<script type="module" src="/PID_Assignment/views/js/title.js"></script>
+<script type="module">
+	import { Order } from "../js/models/order.js";
+	import { OrderDetail } from "../js/models/orderDetail.js";
+
+	import { OrderViewModel } from "../js/viewModels/orderViewModel.js";
+
+	//假資料－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+
+	//無關注
+	// var orders = [
+	// 	new Order(0, "2020-01-01", false),
+	// 	new Order(1, "2020-01-01", false),
+	// 	new Order(2, "2020-01-01", false)
+	// ];
+	//有關注
+	// var orders = [
+	// 	new Order(0, "2020-01-01", false),
+	// 	new Order(1, "2020-01-01", false),
+	// 	new Order(2, "2020-01-01", true)
+	// ];
+
+	// var orderDetails = [
+	// 	new OrderDetail(0, "11", 90, 3),
+	// 	new OrderDetail(0, "12", 30, 4),
+	// 	new OrderDetail(0, "13", 70, 1),
+	// 	new OrderDetail(1, "11", 90, 2),
+	// 	new OrderDetail(1, "14", 30, 1),
+	// 	new OrderDetail(1, "15", 70, 1),
+	// 	new OrderDetail(2, "12", 90, 3),
+	// 	new OrderDetail(2, "13", 30, 3),
+	// 	new OrderDetail(2, "14", 70, 2)
+	// ];
+
+	//假資料－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+	// function orderTotal(id) {
+	// 	let total = 0;
+	// 	for (let item of orderDetails) {
+	// 		if (item.orderID != id) {
+	// 			continue;
+	// 		}
+	// 		total += item.orderCommodityPrice * item.orderCommodityQuantity;
+	// 	}
+	// 	return total;
+	// }
+
+	$(window).ready(() => {
+		$("#orders").empty();
+		$.ajax({
+			type: "GET",
+			url: "/PID_Assignment/order/getUserOrder"
+		}).then(function (e) {
+			let objs = JSON.parse(e);
+			for (let item of objs) {
+				let order = new Order(
+					item['_orderID'],
+					item['_orderDate'],
+					item['_attention'],
+					item['_userID'],
+					item['_total']
+				);
+				$("#orders").append(OrderViewModel.getOrderView(
+					order.orderID,
+					order.orderDate,
+					order.total)
+				);
+
+				$(`#aOrder${order.orderID}`).click(function () {
+					order.attention = !order.attention;
+					orderDetailLayout(order);
+				});
+			}
+		});
+
+	});
+
+	//訂單明細生成
+	function orderDetailLayout(order) {
+		let id = order.orderID;
+		if (!order.attention) {
+			$(`#orderDetails${id}`).empty();
+			return;
+		}
+		$(`#orderDetails${id}`).html(`
+			<li class="row">
+				<div class="col-3">訂單明細</div>
+				<div class="col-3">商品名稱</div>
+				<div class="col-3">購買價格</div>
+				<div class="col-3">購買數量</div>
+			</li><br>
+		`);
+		//此預計在另外做伺服請求
+
+		$.ajax({
+			type: "GET",
+			url: `/PID_Assignment/orderDetail/getOrderDetail?id=${id}`
+		}).then(function (e) {
+			let objs = JSON.parse(e);
+			for (let item of objs) {
+				let orderDetail = new OrderDetail(
+					item['_orderID'],
+					item['_commodityName'],
+					item['_orderCommodityPrice'],
+					item['_orderCommodityQuantity']
+				);
+
+				$(`#orderDetails${id}`)
+					.append(OrderViewModel.getDetailsView(orderDetail.commodityNane,
+						orderDetail.orderCommodityPrice, orderDetail.orderCommodityQuantity));
+			}
+		});
+
+	}
+</script>
+
+<body class="author-template">
+	<div class="site-wrapper">
+		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+			<a class="navbar-brand" href="/PID_Assignment/views/pageFront/index_.html">
+				<img src="/PID_Assignment/views/img/logo.png" alt="Fashion Critiques" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageFront/index_.html">首頁<span
+								class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageFront/index_.html">商品列表</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageFront/order.html">訂單</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageFront/shoppingCart.html">購物車</a>
+					</li>
+
+				</ul>
+				<span class="socialheader row">
+					<div class="col" id="userName">userName</div>
+					<div class="col">
+						<a id="textLogin" href="/PID_Assignment/views/pageFront/login.html">登入</a>
+					</div>
+					<div class="col" id="textregistered">
+						<a href="/PID_Assignment/views/pageFront/registered.html">註冊</a>
+					</div>
+
+				</span>
+			</div>
+		</nav>
+		<br><br><br><br><br><br>
+
+		<div class="list">
+			<ul>
+				<li class="row">
+					<div class="col-4"><strong>訂單編號</strong></div>
+					<div class="col-4"><strong>日期</strong></div>
+					<div class="col-2"><strong>總價</strong></div>
+					<div class="col-2"></div>
+				</li>
+			</ul>
+
+			<ul id="orders">
+
+
+			</ul>
+
+		</div>
+
+		<br><br>
+		<footer class="site-footer clearfix">
+			<a href="#top" id="back-to-top" class="back-top"></a>
+			<div class="text-center">
+				<a href="index.html">Nectaria Template</a> &copy; 2016<br />
+				Free HTML Template by <a href="https://wowthemes.net">WowThemes.net</a>
+			</div>
+		</footer>
+	</div>
+
+</body>
+
+</html>

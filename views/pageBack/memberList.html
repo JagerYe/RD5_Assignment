@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Nectaria - Free HTML Template by WowThemes.net</title>
+	<meta name="description" content="Thoughts, reviews and ideas since 1999." />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" href="/PID_Assignment/views/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="/PID_Assignment/views/css/screen.css" />
+	<link rel="stylesheet" type="text/css"
+		href="https://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,700,700italic|Playfair+Display:400,700,400italic,700italic" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/PID_Assignment/views/css/list.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<style>
+	ul {
+		list-style-type: none;
+	}
+
+	.hide {
+		display: none;
+	}
+</style>
+<script type="module" src="/PID_Assignment/views/js/empTitle.js"></script>
+<script type="module">
+	import { Member } from "../js/models/member.js";
+	import { Order } from "../js/models/order.js";
+	import { OrderDetail } from "../js/models/orderDetail.js";
+
+	import { MemberViewModel } from "../js/viewModels/memberViewModel.js";
+	import { OrderViewModel } from "../js/viewModels/orderViewModel.js";
+
+	let members = new Array();
+	//更新畫面
+	function updateMenu() {
+		$("#list").empty();
+		$("#list").append(`
+			<li class="row">
+				<div class="col-3"><strong>會員圖片</strong></div>
+				<div class="col-2"><strong>帳號</strong></div>
+				<div class="col-2"><strong>電話</strong></div>
+				<div class="col-2"><strong>名稱</strong></div>
+				<div class="col-2"><strong>狀態</strong></div>
+				<div class="col-1"><strong>訂單</strong></div>
+			</li>
+		`);
+
+		members.forEach(item => {
+			$("#list").append(
+				MemberViewModel.getManagerView(item.userID, item.userPhone, item.userName, item.userStatus)
+			);
+
+			//訂單顯示動作
+			$(`#btnShowOrder${item.userID}`).click(() => {
+				if ($(`#orders${item.userID}`).html().trim().length <= 0) {
+					showOrder(item.userID);
+				} else {
+					$(`#orders${item.userID}`).empty();
+				}
+			});
+			$(`#select${item.userID}`).val(item.userStatus);
+
+			$(`#select${item.userID}`).change(() => {
+				changeStatus(item);
+			});
+
+		});
+	}
+
+	//訂單顯示動作
+	function showOrder(userID) {
+		$(`#orders${userID}`).empty();
+		$(`#orders${userID}`).html(`
+			<li class="row">
+				<div class="col-4"><strong>訂單編號</strong></div>
+				<div class="col-4"><strong>日期</strong></div>
+				<div class="col-2"><strong>總價</strong></div>
+				<div class="col-2"></div>
+			</li>
+		`);
+		$.ajax({
+			type: "GET",
+			url: "/PID_Assignment/order/getAll"
+		}).then(function (e) {
+			let objs = JSON.parse(e);
+			for (let item of objs) {
+				let order = new Order(
+					item['_orderID'],
+					item['_orderDate'],
+					item['_attention'],
+					item['_userID'],
+					item['_total']
+				);
+				if (order.userId != userID) {
+					continue;
+				}
+				$(`#orders${userID}`).append(
+					OrderViewModel.getOrderView(order.orderID, order.orderDate, order.total)
+				);
+
+				$(`#aOrder${order.orderID}`).click(function () {
+					order.attention = !order.attention;
+					orderDetailLayout(order);
+				});
+			}
+		});
+	}
+
+	//訂單明細生成
+	function orderDetailLayout(order) {
+		let id = order.orderID;
+		if (!order.attention) {
+			$(`#orderDetails${id}`).empty();
+			return;
+		}
+		$(`#orderDetails${id}`).html(`
+				<li class="row">
+					<div class="col-3">訂單明細</div>
+					<div class="col-3">商品名稱</div>
+					<div class="col-3">購買價格</div>
+					<div class="col-3">購買數量</div>
+				</li><br>
+			`);
+		//此預計在另外做伺服請求
+		$.ajax({
+			type: "GET",
+			url: "/PID_Assignment/orderDetail/getAll"
+		}).then(function (e) {
+			let objs = JSON.parse(e);
+			for (let item of objs) {
+				let orderDetail = new OrderDetail(
+					item['_orderID'],
+					item['_commodityName'],
+					item['_orderCommodityPrice'],
+					item['_orderCommodityQuantity']
+				);
+
+				if (orderDetail.orderID != id) {
+					continue;
+				}
+
+				$(`#orderDetails${id}`)
+					.append(OrderViewModel.getDetailsView(orderDetail.commodityNane,
+						orderDetail.orderCommodityPrice, orderDetail.orderCommodityQuantity));
+			}
+		});
+
+	}
+
+	//會員狀態更改
+	function changeStatus(member) {
+		if (confirm(`確定要${(member.userStatus) ? "停用" : "恢復"}${member.userID}_${member.userName}？`)) {
+			member.userStatus = !member.userStatus;
+			let data = {
+				member: JSON.stringify(member)
+			}
+			$.ajax({
+				type: "PUT",
+				url: "/PID_Assignment/member/update",
+				data: data
+			}).then(function (e) {
+				if (!e) {
+					alert("更新失敗");
+					member.userStatus = !member.userStatus;
+					$(`#select${member.userID}`).val(($(`#select${member.userID}`).val() + 1) % 2);
+					return;
+				}
+				alert("更新成功");
+			});
+		} else {
+			$(`#select${member.userID}`).val(($(`#select${member.userID}`).val() + 1) % 2);
+		}
+	}
+
+	$(window).ready(() => {
+		$.ajax({
+			type: "GET",
+			url: "/PID_Assignment/member/getAll"
+		}).then(function (str) {
+			let objs = JSON.parse(str);
+			for (let item of objs) {
+				let member = new Member(
+					item['_userID'],
+					item['_userName'],
+					item['_userEmail'],
+					item['_userPhone'],
+					item['_userStatus'],
+					item['_userPassword']
+				);
+
+				members.push(member);
+			}
+			updateMenu();
+		});
+
+	});
+</script>
+
+<body class="author-template">
+	<div class="site-wrapper">
+		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+			<a class="navbar-brand" href="/PID_Assignment/views/pageBack/commodityList.html">
+				<img src="/PID_Assignment/views/img/logo.png" alt="Fashion Critiques" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/commodityList.html">首頁<span
+								class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/commodityList.html">商品管理</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/memberList.html">會員管理</a>
+					</li>
+				</ul>
+				<span class="socialheader row">
+					<div class="col" id="empID">empID</div>
+					<a class="col" id="textLogin" href="/PID_Assignment/views/pageBack/login.html">登入</a>
+				</span>
+			</div>
+		</nav>
+		<br><br><br><br><br><br>
+
+		<ul class="list" id="list">
+
+			<li class="row">
+				<div class="col-3"><strong>會員圖片</strong></div>
+				<div class="col-2"><strong>帳號</strong></div>
+				<div class="col-2"><strong>電話</strong></div>
+				<div class="col-2"><strong>名稱</strong></div>
+				<div class="col-2"><strong>狀態</strong></div>
+				<div class="col-1"><strong>訂單</strong></div>
+			</li>
+			<!-- 一會員 -->
+			<li class="row">
+				<div class="col-3">
+					<img src="/PID_Assignment/views/img/gravatar.jpg"><br>
+				</div>
+				<div class="col-2">帳號</div>
+				<div class="col-2">電話</div>
+				<div class="col-2">名稱</div>
+				<div class="col-2">
+					<select id="select" name="select" class="custom-select">
+						<option value="open">啟用</option>
+						<option value="close">停用</option>
+					</select>
+				</div>
+				<div class="col-1">
+					<button type="button" name="" id="">過往訂單</button>
+				</div>
+			</li><br>
+
+
+
+		</ul>
+
+
+	</div>
+
+	<br><br>
+	<footer class="site-footer clearfix">
+		<a href="#top" id="back-to-top" class="back-top"></a>
+		<div class="text-center">
+			<a href="index.html">Nectaria Template</a> &copy; 2016<br />
+			Free HTML Template by <a href="https://wowthemes.net">WowThemes.net</a>
+		</div>
+	</footer>
+	</div>
+
+</body>
+
+</html>

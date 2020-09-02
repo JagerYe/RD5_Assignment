@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Nectaria - Free HTML Template by WowThemes.net</title>
+	<meta name="description" content="Thoughts, reviews and ideas since 1999." />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" href="/PID_Assignment/views/img/logo.png">
+	<link rel="stylesheet" type="text/css" href="/PID_Assignment/views/css/screen.css" />
+	<link rel="stylesheet" type="text/css"
+		href="https://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,700,700italic|Playfair+Display:400,700,400italic,700italic" />
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
+	<link rel="stylesheet" href="/PID_Assignment/views/css/list.css">
+	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
+		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+		crossorigin="anonymous"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+		crossorigin="anonymous"></script>
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
+		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+		crossorigin="anonymous"></script>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<script type="module" src="/PID_Assignment/views/js/empTitle.js"></script>
+<script type="module">
+	import { Commodity } from "../js/models/commodity.js";
+	import { CommodityViewModel } from "../js/viewModels/commodityViewModel.js";
+
+	let commodityNewQuantity = 0;
+
+	//假資料－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+
+	//假資料－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－－
+
+	//更新畫面
+	function updateMenu() {
+		$("#list").empty();
+		$.ajax({
+			type: "GET",
+			url: "/PID_Assignment/commodity/getAll"
+		}).then(function (str) {
+			let objs = JSON.parse(str);
+			for (let item of objs) {
+				let commodity = new Commodity(
+					item['_commodityID'],
+					item['_commodityName'],
+					item['_commodityPrice'],
+					item['_commodityQuantity'],
+					item['_commodityStatus'],
+					item['_commodityText']
+				);
+
+				setItemView(commodity, false);
+			}
+		});
+	}
+
+	function setItemView(obj, isAdd) {
+		$("#list").append(CommodityViewModel.getManagerView(obj.commodityID, obj.commodityName,
+			obj.commodityPrice, obj.commodityQuantity, obj.commodityText, obj.commodityStatus, isAdd)
+		);
+		$(`#textarea${obj.commodityID}`).val($(`#textarea${obj.commodityID}`).val().trim())
+		$(`#btn${isAdd ? "Add" : "Update"}${obj.commodityID}`).click(function () {
+			let index = $(this).closest("li").index();
+			let saveOldStatus = obj.commodityStatus;
+			obj.commodityStatus = $(`#select${obj.commodityID}`).val();
+			if (obj.commodityStatus == "delete") {
+				//刪除商品
+				deleteCommodity(obj, saveOldStatus);
+				return;
+			}
+			obj.commodityName = $(`#commodityName${obj.commodityID}`).val();
+			obj.commodityPrice = $(`#commodityPrice${obj.commodityID}`).val();
+			obj.commodityQuantity = $(`#commodityQuantity${obj.commodityID}`).val();
+			obj.commodityText = $(`#textarea${obj.commodityID}`).val();
+			if (isAdd) {
+				$(`#btnAdd${obj.commodityID}`).html("更新商品內容");
+			}
+			let putData = {
+				commodity: JSON.stringify(obj)
+			}
+			$.ajax({
+				type: "PUT",
+				url: "/PID_Assignment/commodity/update",
+				data: putData
+			}).then(() => {
+				updateMenu();
+			})
+
+		});
+	}
+
+	//刪除商品
+	function deleteCommodity(commodity, oldStatus) {
+		if (confirm(`您確定要刪除${commodity.commodityName}嗎？`)) {
+			let deleteData = { id: commodity.commodityID };
+			$.ajax({
+				type: "DELETE",
+				url: "/PID_Assignment/commodity/delete",
+				data: deleteData
+			}).then(function (e) {
+				if (e) {
+					alert("刪除成功");
+					updateMenu();
+					return;
+				}
+				alert("刪除失敗");
+			});
+		}
+		commodity.commodityStatus = oldStatus;
+	}
+
+	$(window).ready(() => {
+		updateMenu();
+		//重置
+		$("#btnResetAll").click(() => {
+			updateMenu();
+		});
+
+		// //更新
+		// $("#btnUpdateAll").click(() => {
+		// 	commoditys.forEach(item => {
+		// 		item.commodityName = $(`#commodityName${item.commodityID}`).val();
+		// 		item.commodityPrice = $(`#commodityPrice${item.commodityID}`).val();
+		// 		item.commodityQuantity = $(`#commodityQuantity${item.commodityID}`).val();
+		// 		item.commodityStatus = $(`#select${item.commodityID}`).val();
+		// 		item.commodityText = $(`#textarea${item.commodityID}`).val();
+		// 	});
+		// 	updateMenu();
+		// });
+
+		//新增
+		$("#btnAdd").click(() => {
+			// commoditys.push(new Commodity(`new${commodityNewQuantity}`))
+			// let item = commoditys[commoditys.length - 1];
+			// commodityNewQuantity++;
+			let item = new Commodity("??", "??");
+			let postData = { commodity: JSON.stringify(item) };
+			$.ajax({
+				type: "POST",
+				url: "/PID_Assignment/commodity/insertByObj",
+				data: postData
+			}).then(function (e) {
+				if (e) {
+					item.commodityID = e;
+					setItemView(item, true);
+				} else {
+					alert("新增失敗");
+				}
+
+			});
+
+		});
+	});
+</script>
+
+<body class="author-template">
+	<div class="site-wrapper">
+		<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
+			<a class="navbar-brand" href="/PID_Assignment/views/pageBack/commodityList.html">
+				<img src="/PID_Assignment/views/img/logo.png" alt="Fashion Critiques" />
+			</a>
+			<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
+				aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+				<span class="navbar-toggler-icon"></span>
+			</button>
+			<div class="collapse navbar-collapse" id="navbarCollapse">
+				<ul class="navbar-nav mr-auto">
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/commodityList.html">首頁<span
+								class="sr-only">(current)</span></a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/commodityList.html">商品管理</a>
+					</li>
+					<li class="nav-item active">
+						<a class="nav-link" href="/PID_Assignment/views/pageBack/memberList.html">會員管理</a>
+					</li>
+				</ul>
+				<span class="socialheader row">
+					<div class="col" id="empID">empID</div>
+					<a class="col" id="textLogin" href="/PID_Assignment/views/pageBack/login.html">登入</a>
+				</span>
+			</div>
+		</nav>
+		<br><br><br><br><br><br>
+
+		<div class="row">
+			<div class="col"></div>
+			<div class="col-1">
+				<button class="btn btn-danger" type="button" id="btnResetAll">重置所有商品內容</button>
+			</div>
+			<div class="col-1"></div>
+			<!-- <div class="col-1">
+				<button class="btn btn-warning" type="button" id="btnUpdateAll">更新所有商品內容</button>
+			</div> -->
+			<div class="col-1"></div>
+			<div class="col-1">
+				<button class="btn btn-success" type="button" id="btnAdd">新增商品</button>
+			</div>
+			<div class="col-1"></div>
+		</div>
+
+		<ul class="list" id="list">
+
+		</ul>
+
+	</div>
+
+	<br><br>
+	<footer class="site-footer clearfix">
+		<a href="#top" id="back-to-top" class="back-top"></a>
+		<div class="text-center">
+			<a href="index.html">Nectaria Template</a> &copy; 2016<br />
+			Free HTML Template by <a href="https://wowthemes.net">WowThemes.net</a>
+		</div>
+	</footer>
+	</div>
+
+</body>
+
+</html>

@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+	<title>Nectaria - Free HTML Template by WowThemes.net</title>
+	<meta name="description" content="Thoughts, reviews and ideas since 1999." />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<link rel="icon" href="/PID_Assignment/views/img/logo.png">
+
+	<title>Signin Template for Bootstrap</title>
+
+	<link rel="canonical" href="https://getbootstrap.com/docs/4.1/examples/sign-in/">
+
+	<!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
+
+	<!-- Custom styles for this template -->
+	<link href="/PID_Assignment/views/css/signin.css" rel="stylesheet">
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+</head>
+<script>
+	//檢查是否要登出
+	$.ajax({
+		type: "GET",
+		url: "/PID_Assignment/employee/getSessionEmpID"
+	}).then(function (e) {
+		if (e) {
+			$.ajax({
+				type: "GET",
+				url: "/PID_Assignment/employee/logout"
+			});
+		}
+	});
+</script>
+
+<body class="text-center">
+	<form class="form-signin">
+		<a href="/PID_Assignment/views/pageBack/commodityList.html"><img class="mb-4"
+				src="/PID_Assignment/views/img/logo.png" alt="回首頁" style="background-color: black;"></a>
+		<h1 class="h3 mb-3 font-weight-normal">員工登入</h1>
+		<label for="empID" class="sr-only">帳號</label>
+		<input type="text" id="empID" name="empID" class="form-control" placeholder="帳號" required autofocus>
+		<label for="empPassword" class="sr-only">密碼</label>
+		<input type="password" id="empPassword" name="empPassword" class="form-control" placeholder="密碼" required>
+		<button class="btn btn-lg btn-primary btn-block" id="login" type="button">登入</button>
+		<p class="mt-5 mb-3 text-muted">&copy; 2017-2018</p>
+	</form>
+
+</body>
+<script type="module">
+	import { Member } from "../js/models/member.js";
+
+	$(window).ready(() => {
+
+		//登入按鈕事件
+		$("#login").click(() => {
+			let data = {
+				id: $("#empID").val(),
+				password: $("#empPassword").val()
+			};
+			$.ajax({
+				type: "POST",
+				url: "/PID_Assignment/employee/login",
+				data: data
+			}).then(function (e) {
+				if (e) {
+					window.location.href = "/PID_Assignment/views/pageBack/commodityList.html";
+					return;
+				}
+				alert("帳密錯誤");
+			});
+		});
+	});
+</script>
+
+</html>
