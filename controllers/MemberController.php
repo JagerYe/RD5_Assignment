@@ -4,14 +4,19 @@ class MemberController extends Controller
     private $_dao;
     public function __construct()
     {
-        require_once "{$_SERVER['DOCUMENT_ROOT']}/PID_Assignment/models/member/MemberService.php";
+        require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/member/MemberService.php";
         $this->_dao = (new MemberService())->getDAO();
         $this->model("member");
     }
 
-    private function jsonToModel($str)
+    private function jsonToModel($str, $isInsert = false)
     {
         $obj = json_decode($str);
+        if ($isInsert) {
+            $obj->_userStatus = true;
+            $obj->_creationDate = "?????";
+            $obj->_changeDate = "????";
+        }
         try {
             $member = new Member(
                 $obj->_userID,
@@ -19,6 +24,9 @@ class MemberController extends Controller
                 $obj->_userEmail,
                 $obj->_userPhone,
                 $obj->_userStatus,
+                $obj->_creationDate,
+                $obj->_changeDate,
+                $obj->_userUTC,
                 $obj->_userPassword
             );
         } catch (Exception $err) {
@@ -28,22 +36,10 @@ class MemberController extends Controller
         return $member;
     }
 
-    public function insert($id, $password, $name, $email, $phone, $status)
-    {
-        if (!preg_match("/\w{6,30}/", $password)) {
-            return false;
-        }
-
-        if ($this->_dao->insertMember($id, $password, $name, $email, $phone, $status)) {
-            return true;
-        }
-        return false;
-    }
-
     public function insertByObj($str)
     {
 
-        if (!($member = $this->jsonToModel($str))) {
+        if (!($member = $this->jsonToModel($str, true))) {
             return false;
         }
         $password = $member->getUserPassword();
@@ -61,6 +57,11 @@ class MemberController extends Controller
     public function update($str)
     {
         if (!($member = $this->jsonToModel($str))) {
+            return false;
+        }
+
+        $password = $member->getUserPassword();
+        if (!preg_match("/\w{6,30}/", $password)) {
             return false;
         }
 
@@ -97,7 +98,6 @@ class MemberController extends Controller
 
     public function login($id, $password)
     {
-        // $request = ;
         if ($this->_dao->doLogin($id, $password) == 1) {
             $member = $this->_dao->getOneMemberByID($id);
 

@@ -490,7 +490,6 @@ body.nav-opened .site-wrapper {
 	position:relative;
 	display:table;
 	width:100%;
-	height:100vh;
 	margin-bottom:5rem;
 	text-align:center;
 	background:#222 no-repeat center center;
@@ -844,8 +843,6 @@ body.nav-opened .nav {
 	color:rgba(255,255,255,0.9);
 }
 .no-cover.main-header {
-	min-height:160px;
-	max-height:40vh;
 	background:#f5f8fa;
 }
 .no-cover .page-title {
@@ -1177,27 +1174,14 @@ h2.widget-title {
 	color: #dd4b39;
 }
 /* ========================================================================== 6. Author profile ========================================================================== */
-.post-head.main-header {
-	height:65vh;
+/* .post-head.main-header {
 	min-height:180px;
-}
+} */
 .no-cover.post-head.main-header {
-	height:85px;
-	min-height:0;
 	margin-bottom:0;
 	background:transparent;
 }
-.tag-head.main-header {
-	height:65vh;
-	min-height:180px;
-}
-.author-head.main-header {
-	height:40vh;
-	min-height:180px;
-}
 .no-cover.author-head.main-header {
-	height:10vh;
-	min-height:100px;
 	background:transparent;
 }
 .author-profile {
@@ -1457,9 +1441,9 @@ h2.widget-title {
 	width: auto;
 }
 /* On page2+make all the headers smaller */
-.archive-template .main-header {
+/* .archive-template .main-header {
 	max-height: 65vh;
-}
+} */
 /* On page2+show extra pagination controls at the top of post list */
 .archive-template .extra-pagination {
 	display: block;
@@ -1505,9 +1489,7 @@ h2.widget-title {
 		-webkit-box-sizing:border-box;
 		-moz-box-sizing:border-box;
 		box-sizing:border-box;
-		height:auto;
-		min-height:100%;
-		height:100vh;
+		/* height:1px; */
 		padding:0;
 	}
   .main-header .inner {
@@ -1517,7 +1499,6 @@ h2.widget-title {
 		display:none;
 	}
 	.archive-template .main-header {
-		min-height:180px;
 		padding:10% 0;
 	}
 	.blog-logo img {
@@ -1577,10 +1558,6 @@ h2.widget-title {
 		font-size:1.6rem;
 	}
 
-	.tag-head.main-header,.author-head.main-header, .post-head.main-header, .no-cover.post-head.main-header {
-		height:auto;
-    min-height: 40vh;
-	}
   .post-template .content {
     width: 80%;
     max-width: 80%;
@@ -1608,15 +1585,9 @@ h2.widget-title {
 /* ========================================================================== 12. Media Queries - Smaller than 500px ========================================================================== */
 @media only screen and (max-width:500px) {
 	.main-header {
-		height:60vh;
 		margin-bottom:0;
 	}
-	.no-cover.main-header {
-		height:60vh;
-	}
 	.archive-template .main-header {
-		max-height:20vh;
-		min-height:160px;
 		padding:0% 0;
 	}
 	.main-nav {
@@ -1783,9 +1754,6 @@ h2.widget-title {
 	}
 	.author-profile {
 		padding-bottom:2rem;
-	}
-	.tag-head.main-header,.post-head.main-header,.author-head.main-header {
-		min-height:30vh;
 	}
 	.main-header .inner {
 		margin-top:0;

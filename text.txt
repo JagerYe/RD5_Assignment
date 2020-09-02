@@ -1,6 +1,41 @@
-implements \JsonSerializable
+<script type="module" src="/RD5_Assignment/views/js/title.js"></script>
+<script type="module">
+	import { Commodity } from "../js/models/commodity.js";
+	import { CommodityViewModel } from "../js/viewModels/commodityViewModel.js";
 
-public function jsonSerialize()
-    {
-        return get_object_vars($this);
-    }
+	$(window).ready(() => {
+		$.ajax({
+			type: "GET",
+			url: "/RD5_Assignment/commodity/getAll"
+		}).then(function (e) {
+			// 顯示所有商品
+			$(".show").html("");
+			let objs = JSON.parse(e);
+			for (let item of objs) {
+				let commodity = new Commodity(
+					item['_commodityID'],
+					item['_commodityName'],
+					item['_commodityPrice'],
+					item['_commodityQuantity'],
+					item['_commodityStatus'],
+					item['_commodityText']
+				);
+				if (commodity.commodityStatus == "close" || commodity.commodityQuantity <= 0 || item.commodityPrice <= 0) {
+					continue;
+				}
+				$(".show").append(CommodityViewModel.getMenuView(commodity.commodityID, commodity._commodityName, commodity._commodityPrice));
+			}
+		});
+
+
+		// $(".show").html("");
+		// commoditys.forEach(commodity => {
+		// 	if (item.commodityStatus == "close" || item.commodityQuantity <= 0 || item.commodityPrice <= 0) {
+		// 		return;
+		// 	}
+		// 	$(".show").append(CommodityViewModel.getMenuView(item.commodityID, item._commodityName, item._commodityPrice));
+		// });
+	});
+
+
+</script>

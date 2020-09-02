@@ -1,7 +1,7 @@
 <?php
 interface MemberDAO
 {
-    public function insertMember($id, $password, $name, $email, $phone, $status);
+    public function insertMember($id, $password, $name, $email, $phone, $status, $userUTC);
     public function updateMember($member);
     public function deleteMemberByID($id);
     public function getOneMemberByID($id);

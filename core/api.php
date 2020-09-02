@@ -8,10 +8,10 @@ class Api
         $url = rtrim($_GET["url"], "/");
         $url = explode("/", $url);
         $controllerName = "{$url[0]}Controller";
-        if (!file_exists("{$_SERVER['DOCUMENT_ROOT']}/PID_Assignment/controllers/$controllerName.php")) {
+        if (!file_exists("{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/controllers/$controllerName.php")) {
             return;
         }
-        require_once "{$_SERVER['DOCUMENT_ROOT']}/PID_Assignment/controllers/$controllerName.php";
+        require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/controllers/$controllerName.php";
         $controller = new $controllerName;
         $methodName = isset($url[1]) ? $url[1] : "";
         if (!method_exists($controller, $methodName)) {

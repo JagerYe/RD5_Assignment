@@ -1,20 +1,20 @@
 <?php
-require_once "{$_SERVER['DOCUMENT_ROOT']}/PID_Assignment/models/member/MemberDAO_Interface.php";
-require_once "{$_SERVER['DOCUMENT_ROOT']}/PID_Assignment/models/config.php";
+require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/member/MemberDAO_Interface.php";
+require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/config.php";
 class MemberDAO_PDO implements MemberDAO
 {
 
-    private $_strInsert = "INSERT INTO `Members`(`userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`) VALUES (:userID,:userPassword,:userName,:userEmail,:userPhone,:userStatus);";
-    private $_strUpdate = "UPDATE `Members` SET `userName`=:userName,`userEmail`=:userEmail,`userPhone`=:userPhone,`userStatus`=:userStatus WHERE `userID`=:userID;";
+    private $_strInsert = "INSERT INTO `Members`(`userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, `creationDate`, `changeDate`) VALUES (:userID,:userPassword,:userName,:userEmail,:userPhone,:userStatus,CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC));";
+    private $_strUpdate = "UPDATE `Members` SET `userName`=:userName,`userEmail`=:userEmail,`userPhone`=:userPhone,`userStatus`=:userStatus,`changeDate`=CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC) WHERE `userID`=:userID;";
     private $_strDelete = "DELETE FROM `Members` WHERE `userID` = :userID;";
     private $_strCheckMemberExist = "SELECT COUNT(*) FROM `Members` WHERE `userID` = :userID;";
-    private $_strGetAll = "SELECT `userID`, `userName`, `userEmail`, `userPhone`, `userStatus` FROM `Members`;";
-    private $_strGetOne = "SELECT `userID`, `userName`, `userEmail`, `userPhone`, `userStatus` FROM `Members` WHERE `userID` = :userID;";
+    private $_strGetAll = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, CONVERT_TZ(`creationDate`,(SELECT @@time_zone),:userUTC) AS 'creationDate',  CONVERT_TZ(`changeDate`,(SELECT @@time_zone),:userUTC) AS 'changeDate' FROM `Members`;";
+    private $_strGetOne = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, CONVERT_TZ(`creationDate`,(SELECT @@time_zone),:userUTC) AS 'creationDate',  CONVERT_TZ(`changeDate`,(SELECT @@time_zone),:userUTC) AS 'changeDate' FROM `Members` WHERE `userID` = :userID;";
     private $_strLoginID = "SELECT COUNT(`userID`) FROM `members` WHERE `userID`=:userID AND `userStatus` = true;";
     private $_strLoginPassword = "SELECT `userPassword` FROM `members` WHERE `userID`=:userID";
 
     //新增會員
-    public function insertMember($id, $password, $name, $email, $phone, $status)
+    public function insertMember($id, $password, $name, $email, $phone, $status, $userUTC)
     {
         try {
             $dbh = (new Config)->getDBConnect();
@@ -28,6 +28,7 @@ class MemberDAO_PDO implements MemberDAO
             $sth->bindParam("userPhone", $phone);
             $status = ($status) ? 1 : 0;
             $sth->bindParam("userStatus", $status);
+            $sth->bindParam("userUTC", $userUTC);
             $sth->execute();
             $dbh->commit();
             $sth = null;
@@ -47,7 +48,8 @@ class MemberDAO_PDO implements MemberDAO
             $member->getUserName(),
             $member->getUserEmail(),
             $member->getUserPhone(),
-            $member->getUserStatus()
+            $member->getUserStatus(),
+            $member->getUserUTC()
         );
     }
 
@@ -64,6 +66,7 @@ class MemberDAO_PDO implements MemberDAO
             $sth->bindParam("userPhone", $member->getUserPhone());
             $status = ($member->getUserStatus()) ? 1 : 0;
             $sth->bindParam("userStatus", $status);
+            $sth->bindParam("userUTC", $member->getUserUTC());
             $sth->execute();
             $dbh->commit();
             $sth = null;
@@ -113,7 +116,9 @@ class MemberDAO_PDO implements MemberDAO
                     $item['userName'],
                     $item['userEmail'],
                     $item['userPhone'],
-                    $item['userStatus']
+                    $item['userStatus'],
+                    $item['creationDate'],
+                    $item['changeDate']
                 );
             }
             $sth = null;
@@ -139,7 +144,9 @@ class MemberDAO_PDO implements MemberDAO
                 $request['userName'],
                 $request['userEmail'],
                 $request['userPhone'],
-                $request['userStatus']
+                $request['userStatus'],
+                $request['creationDate'],
+                $request['changeDate']
             );
 
             $sth = null;

@@ -1,158 +1,101 @@
-<!DOCTYPE html>
-<html>
+<!doctype html>
+<html lang="en">
 
 <head>
-	<meta charset="utf-8" />
-	<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-	<title>Nectaria - Free HTML Template by WowThemes.net</title>
-	<meta name="description" content="Thoughts, reviews and ideas since 1999." />
-	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-	<link rel="icon" href="/PID_Assignment/views/img/logo.png">
-	<link rel="stylesheet" type="text/css" href="/PID_Assignment/views/css/screen.css" />
-	<link rel="stylesheet" type="text/css"
-		href="https://fonts.googleapis.com/css?family=Roboto:400,300italic,300,400italic,700,700italic|Playfair+Display:400,700,400italic,700italic" />
-	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css">
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
-	<link rel="stylesheet" href="/PID_Assignment/views/css/list.css">
-	<script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"
-		integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo"
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link rel="icon" href="/RD5_Assignment/views/img/logo.png">
+
+	<title>網銀</title>
+
+	<!-- Bootstrap core CSS -->
+	<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+		integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+	<!-- Custom styles for this template -->
+	<link href="/RD5_Assignment/views/css/starter-template.css" rel="stylesheet">
+
+	<!-- Bootstrap -->
+	<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+		integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj"
 		crossorigin="anonymous"></script>
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-		integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+	<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"
+		integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN"
 		crossorigin="anonymous"></script>
-	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js"
-		integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy"
+	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+		integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
 		crossorigin="anonymous"></script>
-	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-	<style>
-		.card img {
-			height: 225px;
-		}
-	</style>
 </head>
-<script type="module" src="/PID_Assignment/views/js/title.js"></script>
-<script type="module">
-	import { Commodity } from "../js/models/commodity.js";
-	import { CommodityViewModel } from "../js/viewModels/commodityViewModel.js";
-
+<style>
+	.list li {
+		margin: 20px;
+	}
+</style>
+<script src="/RD5_Assignment/views/js/viewModels/showViewModel.js"></script>
+<script>
 	$(window).ready(() => {
-		$.ajax({
-			type: "GET",
-			url: "/PID_Assignment/commodity/getAll"
-		}).then(function (e) {
-			// 顯示所有商品
-			$(".show").html("");
-			let objs = JSON.parse(e);
-			for (let item of objs) {
-				let commodity = new Commodity(
-					item['_commodityID'],
-					item['_commodityName'],
-					item['_commodityPrice'],
-					item['_commodityQuantity'],
-					item['_commodityStatus'],
-					item['_commodityText']
-				);
-				if (commodity.commodityStatus == "close" || commodity.commodityQuantity <= 0 || item.commodityPrice <= 0) {
-					continue;
-				}
-				$(".show").append(CommodityViewModel.getMenuView(commodity.commodityID, commodity._commodityName, commodity._commodityPrice));
-			}
-		});
-
-
-		// $(".show").html("");
-		// commoditys.forEach(commodity => {
-		// 	if (item.commodityStatus == "close" || item.commodityQuantity <= 0 || item.commodityPrice <= 0) {
-		// 		return;
-		// 	}
-		// 	$(".show").append(CommodityViewModel.getMenuView(item.commodityID, item._commodityName, item._commodityPrice));
-		// });
+		// $("#mainShow").html(showIndex());
+		// $("#featuresShow").html(showMenu());
 	});
-
-
 </script>
 
-<body class="home-template">
+<body>
 
-	<nav class="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-		<a class="navbar-brand" href="/PID_Assignment/views/pageFront/index_.html">
-			<img src="/PID_Assignment/views/img/logo.png" alt="Fashion Critiques" />
-		</a>
-		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarCollapse"
-			aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation">
+	<nav class="navbar navbar-expand-md navbar-dark bg-dark fixed-top">
+		<a class="navbar-brand" href="/RD5_Assignment/views/pageFront/index_.html">網銀</a>
+		<button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarsExampleDefault"
+			aria-controls="navbarsExampleDefault" aria-expanded="false" aria-label="Toggle navigation">
 			<span class="navbar-toggler-icon"></span>
 		</button>
-		<div class="collapse navbar-collapse" id="navbarCollapse">
+
+		<div class="collapse navbar-collapse" id="navbarsExampleDefault">
 			<ul class="navbar-nav mr-auto">
 				<li class="nav-item active">
-					<a class="nav-link" href="/PID_Assignment/views/pageFront/index_.html">首頁<span
-							class="sr-only">(current)</span></a>
+					<div class="btn nav-link deposit">存款</div>
 				</li>
 				<li class="nav-item active">
-					<a class="nav-link" href="/PID_Assignment/views/pageFront/index_.html">商品列表</a>
+					<div class="btn nav-link withdrawal">提款</div>
 				</li>
 				<li class="nav-item active">
-					<a class="nav-link" href="/PID_Assignment/views/pageFront/order.html">訂單</a>
-				</li>
-				<li class="nav-item active">
-					<a class="nav-link" href="/PID_Assignment/views/pageFront/shoppingCart.html">購物車</a>
+					<div class="btn nav-link showDetail">查詢明細</div>
 				</li>
 
 			</ul>
-			<span class="socialheader row">
-				<div class="col" id="userName">userName</div>
-				<div class="col">
-					<a id="textLogin" href="/PID_Assignment/views/pageFront/login.html">登入</a>
-				</div>
-				<div class="col" id="textregistered">
-					<a href="/PID_Assignment/views/pageFront/registered.html">註冊</a>
-				</div>
-
-			</span>
+			<ul class="navbar-nav my-2 my-lg-0">
+				<li class="nav-item active">
+					<div class="nav-link showUserName" id="showUserName">userName</div>
+				</li>
+				<li class="nav-item active">
+					<a class="nav-link" href="login.html">登入</a>
+				</li>
+				<li class="nav-item active">
+					<a class="nav-link" href="registered.html">註冊</a>
+				</li>
+			</ul>
 		</div>
 	</nav>
-	<header class="main-header " style="background-image: url(/PID_Assignment/views/img/intro.jpg)">
-		<div class="vertical">
-			<div class="main-header-content inner">
-				<h1 class="page-title">Fashion Critiques</h1>
-				<div class="entry-title-divider">
-					<span></span><span></span><span></span>
+
+	<main role="main" class="container">
+
+
+		<div class="row">
+			<div class="col-1"></div>
+			<div class="col" id="mainShow">
+				<h1>您好！ ${name}</h1>
+				<p>目前餘額：${balance}</p>
+				<div id="featuresShow">
+					<h2>請輸入存入金額</h2>
+					<div><input id="input" type="number" min="0" value="0"></div><br>
+					<div><button id="btnSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>
 				</div>
-				<h2 class="page-description">Thoughts, reviews and ideas since 1999.</h2>
 			</div>
+			<div class="col-1"></div>
 		</div>
-		<a class="scroll-down icon-arrow-left" href="#content" data-offset="-45">
-			<span class="hidden">Scroll Down</span>
-		</a>
-	</header>
-	<div class="album py-5 bg-light">
-		<div class="container">
 
-			<div class="row show">
 
-				<!-- 一物件 -->
-				<a href="/PID_Assignment/views/pageFront/commodity.html">
-					<div class="col-md-4">
-						<div class="card mb-4 shadow-sm">
-							<img src="/PID_Assignment/views/img/gravatar.jpg">
-							<div class="card-body">
-								<h2>名稱</h2>
-								<p class="card-text">價格</p>
-							</div>
-						</div>
-					</div>
-				</a>
-			</div>
-		</div>
-	</div>
-	<!-- 底部 -->
-	<footer class="site-footer clearfix">
-		<a href="#top" id="back-to-top" class="back-top"></a>
-		<div class="text-center">
-			<a href="/PID_Assignment/views/pageFront/index_.html">Nectaria Template</a> &copy; 2016<br />
-			Free HTML Template by <a href="https://wowthemes.net">WowThemes.net</a>
-		</div>
-	</footer>
+	</main><!-- /.container -->
 
 </body>
 
