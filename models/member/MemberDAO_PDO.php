@@ -110,17 +110,6 @@ class MemberDAO_PDO implements MemberDAO
             $dbh = (new Config)->getDBConnect();
             $sth = $dbh->query($this->_strGetAll);
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($request as $item) {
-                $members[] = new Member(
-                    $item['userID'],
-                    $item['userName'],
-                    $item['userEmail'],
-                    $item['userPhone'],
-                    $item['userStatus'],
-                    $item['creationDate'],
-                    $item['changeDate']
-                );
-            }
             $sth = null;
         } catch (PDOException $err) {
             $dbh->rollBack();
@@ -128,7 +117,7 @@ class MemberDAO_PDO implements MemberDAO
             return false;
         }
         $dbh = null;
-        return $members;
+        return Member::dbDatasToModelsArray($request);
     }
     public function getOneMemberByID($id)
     {
@@ -138,24 +127,13 @@ class MemberDAO_PDO implements MemberDAO
             $sth->bindParam("userID", $id);
             $sth->execute();
             $request = $sth->fetch(PDO::FETCH_ASSOC);
-
-            $member = new Member(
-                $request['userID'],
-                $request['userName'],
-                $request['userEmail'],
-                $request['userPhone'],
-                $request['userStatus'],
-                $request['creationDate'],
-                $request['changeDate']
-            );
-
             $sth = null;
         } catch (PDOException $err) {
             echo ($err->__toString());
             return false;
         }
         $dbh = null;
-        return $member;
+        return Member::dbDataToModel($request);
     }
 
     public function doLogin($id, $password)

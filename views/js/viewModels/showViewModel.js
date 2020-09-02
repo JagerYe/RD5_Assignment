@@ -18,10 +18,16 @@ function showMenu() {
             </ul>`;
 }
 
-function showDepositAndWithdrawal() {
-    return `<h2>請輸入存入金額</h2>
-            <div><input id="input" type="number" min="0" value="0"></div><br>
-            <div><button id="btnSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>`;
+function showDepositAndWithdrawal(isInput) {
+    if (isInput) {
+        return `<h2>請輸入存入金額</h2>
+                <div><input id="inputAmount" type="number" min="0" value="0"></div><br>
+                <div><button id="btnInputSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>`;
+    } else {
+        return `<h2>請輸入提出金額</h2>
+                <div><input id="outputAmount" type="number" min="0" value="0"></div><br>
+                <div><button id="btnOutputSub" type="button" class="btn btn-primary btn-lg btn-block">提出</button></div>`;
+    }
 }
 
 function showUnlogin() {

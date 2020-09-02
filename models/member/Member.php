@@ -13,6 +13,83 @@ class Member implements \JsonSerializable
     private $_emailRule = "/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/";
     private $_dateRule = "/\d{1,4}\/((1[0-2])|(0?[1-9]))\/((3[01])|([12]\d)|(0?[1-9])) ((2[0-4])|([01]?\d)){1}\:[0-5][0-9]\:[0-5][0-9]/";
 
+    public static function jsonStringToModel($jsonStr, $isInsert = false)
+    {
+        $jsonObj = json_decode($jsonStr);
+        if ($isInsert) {
+            //新增時，這些資料由DB來生
+            $jsonObj->_userStatus = true;
+            $jsonObj->_creationDate = "?????";
+            $jsonObj->_changeDate = "????";
+        }
+        return new Member(
+            $jsonObj->_userID,
+            $jsonObj->_userName,
+            $jsonObj->_userEmail,
+            $jsonObj->_userPhone,
+            $jsonObj->_userStatus,
+            $jsonObj->_creationDate,
+            $jsonObj->_changeDate,
+            $jsonObj->_userUTC,
+            $jsonObj->_userPassword
+        );
+    }
+
+    public static function jsonArrayStringToModelsArray($jsonStr, $isInsert = false)
+    {
+        $jsonArr = json_decode($jsonStr);
+        foreach ($jsonArr as $jsonObj) {
+            if ($isInsert) {
+                $jsonObj->_userStatus = true;
+                $jsonObj->_creationDate = "?????";
+                $jsonObj->_changeDate = "????";
+            }
+            $members[] = new Member(
+                $jsonObj->_userID,
+                $jsonObj->_userName,
+                $jsonObj->_userEmail,
+                $jsonObj->_userPhone,
+                $jsonObj->_userStatus,
+                $jsonObj->_creationDate,
+                $jsonObj->_changeDate,
+                $jsonObj->_userUTC,
+                $jsonObj->_userPassword
+            );
+        }
+        return $members;
+    }
+
+    public static function dbDataToModel($request)
+    {
+        return new Member(
+            $request['userID'],
+            $request['userName'],
+            $request['userEmail'],
+            $request['userPhone'],
+            $request['userStatus'],
+            $request['creationDate'],
+            $request['changeDate'],
+            "+00:00"
+        );
+    }
+
+    public static function dbDatasToModelsArray($requests)
+    {
+        foreach ($requests as $request) {
+            $members[] = new Member(
+                $request['userID'],
+                $request['userName'],
+                $request['userEmail'],
+                $request['userPhone'],
+                $request['userStatus'],
+                $request['creationDate'],
+                $request['changeDate'],
+                "+00:00"
+            );
+        }
+        return $members;
+    }
+
     public function __construct(
         $userID,
         $userName,

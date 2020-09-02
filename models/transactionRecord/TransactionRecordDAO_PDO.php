@@ -149,25 +149,13 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
             $sth = $dbh->prepare($this->_strGetAll);
             $sth->execute();
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($request as $item) {
-                $records[] = new TransactionRecord(
-                    $item['recordID'],
-                    $item['userID'],
-                    $item['transactionAmount'],
-                    $item['transactionDate'],
-                    $item['transactionChangeDate'],
-                    "+00:00",
-                    0,
-                    $item['status']
-                );
-            }
             $sth = null;
         } catch (PDOException $err) {
             $dbh->rollBack();
             return false;
         }
         $dbh = null;
-        return $records;
+        return TransactionRecord::dbDatasToModelsArray($request);
     }
     public function getOneTransactionRecordByID($id)
     {
@@ -177,24 +165,12 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
             $sth->bindParam("recordID", $id);
             $sth->execute();
             $request = $sth->fetch(PDO::FETCH_ASSOC);
-
-            $record = new TransactionRecord(
-                $request['recordID'],
-                $request['userID'],
-                $request['transactionAmount'],
-                $request['transactionDate'],
-                $request['transactionChangeDate'],
-                "+00:00",
-                0,
-                $request['status']
-            );
-
             $sth = null;
         } catch (PDOException $err) {
             return false;
         }
         $dbh = null;
-        return $record;
+        return TransactionRecord::dbDataToModel($request);
     }
 
     public function getTransactionRecordByUserID($id)
@@ -205,25 +181,13 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
             $sth->bindParam("userID", $id);
             $sth->execute();
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($request as $item) {
-                $records[] = new TransactionRecord(
-                    $item['recordID'],
-                    $item['userID'],
-                    $item['transactionAmount'],
-                    $item['transactionDate'],
-                    $item['transactionChangeDate'],
-                    "+00:00",
-                    0,
-                    $item['status']
-                );
-            }
             $sth = null;
         } catch (PDOException $err) {
             $dbh->rollBack();
             return false;
         }
         $dbh = null;
-        return $records;
+        return TransactionRecord::dbDatasToModelsArray($request);
     }
 
     public function getUserBalance($id)
@@ -251,24 +215,12 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
             $sth->bindParam("userID", $id);
             $sth->execute();
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
-            foreach ($request as $item) {
-                $records[] = new TransactionRecord(
-                    $item['recordID'],
-                    $item['userID'],
-                    $item['transactionAmount'],
-                    $item['transactionDate'],
-                    $item['transactionChangeDate'],
-                    "+00:00",
-                    $item['currentAmount'],
-                    $item['status']
-                );
-            }
             $sth = null;
         } catch (Exception $err) {
             $dbh = null;
             return false;
         }
         $dbh = null;
-        return $request['0'];
+        return TransactionRecord::dbDatasToModelsArray($request);
     }
 }

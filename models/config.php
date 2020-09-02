@@ -3,7 +3,7 @@
 
 class Config
 {
-	public function getDBConnect()
+	public static function getDBConnect()
 	{
 		$dsn = "mysql:host=localhost;dbname=RD5_Assignment;port=3306";
 		$dbid = 'root';

@@ -27,6 +27,9 @@
 	<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
 		integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV"
 		crossorigin="anonymous"></script>
+
+	<!-- ajax -->
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 </head>
 <style>
 	.list li {
@@ -36,8 +39,8 @@
 <script src="/RD5_Assignment/views/js/viewModels/showViewModel.js"></script>
 <script>
 	$(window).ready(() => {
-		// $("#mainShow").html(showIndex());
-		// $("#featuresShow").html(showMenu());
+		$("#mainShow").html(showIndex());
+		$("#featuresShow").html(showDepositAndWithdrawal());
 	});
 </script>
 
@@ -83,13 +86,13 @@
 		<div class="row">
 			<div class="col-1"></div>
 			<div class="col" id="mainShow">
-				<h1>您好！ ${name}</h1>
+				<!-- <h1>您好！ ${name}</h1>
 				<p>目前餘額：${balance}</p>
 				<div id="featuresShow">
 					<h2>請輸入存入金額</h2>
-					<div><input id="input" type="number" min="0" value="0"></div><br>
-					<div><button id="btnSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>
-				</div>
+					<div><input id="inputAmount" type="number" min="0" value="0"></div><br>
+					<div><button id="btnInputSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>
+				</div> -->
 			</div>
 			<div class="col-1"></div>
 		</div>

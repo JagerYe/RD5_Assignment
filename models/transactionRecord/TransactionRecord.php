@@ -8,8 +8,90 @@ class TransactionRecord implements \JsonSerializable
     private $_transactionChangeDate;
     private $_userUTC;
     private $_status;
-    private $_currentAmount;//當時餘額
+    private $_currentAmount; //當時餘額
     private $_dateRule = "/\d{1,4}\/((1[0-2])|(0?[1-9]))\/((3[01])|([12]\d)|(0?[1-9])) ((2[0-4])|([01]?\d)){1}\:[0-5][0-9]\:[0-5][0-9]/";
+
+    public static function jsonStringToModel($jsonStr, $isInsert = false)
+    {
+        $jsonObj = json_decode($jsonStr);
+
+        //如新增時id就亂塞，最後由DB來生
+        if ($isInsert) {
+            $jsonObj->_recordID = "???";
+        }
+
+        //這些參數由DB來生
+        $jsonObj->_transactionDate = "2020/02/02 02:02:02";
+        $jsonObj->_transactionChangeDate = "2020/02/02 02:02:02";
+
+        return new TransactionRecord(
+            $jsonObj->_recordID,
+            $jsonObj->_userID,
+            $jsonObj->_transactionAmount,
+            $jsonObj->_transactionDate,
+            $jsonObj->_transactionChangeDate,
+            $jsonObj->_userUTC,
+            $jsonObj->_currentAmount,
+            $jsonObj->_status
+        );
+    }
+
+    public static function jsonArrayStringToModelsArray($jsonStr, $isInsert = false)
+    {
+        $jsonArr = json_decode($jsonStr);
+        foreach ($jsonArr as $jsonObj) {
+
+            if ($isInsert) {
+                $jsonObj->_recordID = "???";
+            }
+
+            $jsonObj->_transactionDate = "2020/02/02 02:02:02";
+            $jsonObj->_transactionChangeDate = "2020/02/02 02:02:02";
+
+            $records[] = new TransactionRecord(
+                $jsonObj->_recordID,
+                $jsonObj->_userID,
+                $jsonObj->_transactionAmount,
+                $jsonObj->_transactionDate,
+                $jsonObj->_transactionChangeDate,
+                $jsonObj->_userUTC,
+                $jsonObj->_currentAmount,
+                $jsonObj->_status
+            );
+        }
+        return $records;
+    }
+
+    public static function dbDataToModel($request)
+    {
+        return new TransactionRecord(
+            $request['recordID'],
+            $request['userID'],
+            $request['transactionAmount'],
+            $request['transactionDate'],
+            $request['transactionChangeDate'],
+            "+00:00",
+            $request['currentAmount'],
+            $request['status']
+        );
+    }
+
+    public static function dbDatasToModelsArray($requests)
+    {
+        foreach ($requests as $request) {
+            $records[] = new TransactionRecord(
+                $request['recordID'],
+                $request['userID'],
+                $request['transactionAmount'],
+                $request['transactionDate'],
+                $request['transactionChangeDate'],
+                "+00:00",
+                $request['currentAmount'],
+                $request['status']
+            );
+        }
+        return $records;
+    }
 
     public function __construct(
         $recordID,

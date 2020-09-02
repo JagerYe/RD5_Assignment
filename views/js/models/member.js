@@ -1,11 +1,24 @@
 export class Member {
-    constructor(userID, userName, userEmail, userPhone, userStatus, userPassword = "") {
+    constructor(
+        userID,
+        userName,
+        userEmail,
+        userPhone,
+        userStatus,
+        creationDate,
+        changeDate,
+        userUTC,
+        userPassword = 0
+    ) {
         this._userID = userID;
         this._userPassword = userPassword;
         this._userName = userName;
         this._userEmail = userEmail;
         this._userPhone = userPhone;
         this._userStatus = userStatus;
+        this._creationDate = creationDate;
+        this._changeDate = changeDate;
+        this._userUTC = userUTC;
     }
 
     get userID() {
@@ -48,5 +61,26 @@ export class Member {
     }
     set userStatus(userStatus) {
         this._userStatus = userStatus;
+    }
+
+    get creationDate() {
+        return this._creationDate
+    }
+    set creationDate(creationDate) {
+        this._creationDate = creationDate;
+    }
+
+    get changeDate() {
+        return this._changeDate
+    }
+    set changeDate(changeDate) {
+        this._changeDate = changeDate;
+    }
+
+    get userUTC() {
+        return this._userUTC
+    }
+    set userUTC(userUTC) {
+        this._userUTC = userUTC;
     }
 }
