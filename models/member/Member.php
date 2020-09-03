@@ -11,7 +11,7 @@ class Member implements \JsonSerializable
     private $_changeDate;
     private $_userUTC;
     private $_emailRule = "/^\w+((-\w+)|(\.\w+))*\@[A-Za-z0-9]+((\.|-)[A-Za-z0-9]+)*\.[A-Za-z]+$/";
-    private $_dateRule = "/\d{1,4}\/((1[0-2])|(0?[1-9]))\/((3[01])|([12]\d)|(0?[1-9])) ((2[0-4])|([01]?\d)){1}\:[0-5][0-9]\:[0-5][0-9]/";
+    private $_dateRule = "/\d{1,4}-((1[0-2])|(0?[1-9]))-((3[01])|([12]\d)|(0?[1-9])) ((2[0-4])|([01]?\d)){1}\:[0-5][0-9]\:[0-5][0-9]/";
 
     public static function jsonStringToModel($jsonStr, $isInsert = false)
     {
@@ -19,8 +19,12 @@ class Member implements \JsonSerializable
         if ($isInsert) {
             //新增時，這些資料由DB來生
             $jsonObj->_userStatus = true;
-            $jsonObj->_creationDate = "?????";
-            $jsonObj->_changeDate = "????";
+            $jsonObj->_creationDate = "2020-02-02 02:02:02";
+            $jsonObj->_changeDate = "2020-02-02 02:02:02";
+
+            if (!preg_match("/\w{6,30}/", $jsonObj->_userPassword)) {
+                return false;
+            }
         }
         return new Member(
             $jsonObj->_userID,
@@ -41,8 +45,8 @@ class Member implements \JsonSerializable
         foreach ($jsonArr as $jsonObj) {
             if ($isInsert) {
                 $jsonObj->_userStatus = true;
-                $jsonObj->_creationDate = "?????";
-                $jsonObj->_changeDate = "????";
+                $jsonObj->_creationDate = "2020-02-02 02:02:02";
+                $jsonObj->_changeDate = "2020-02-02 02:02:02";
             }
             $members[] = new Member(
                 $jsonObj->_userID,
@@ -217,7 +221,7 @@ class Member implements \JsonSerializable
     }
     public function setUserUTC($userUTC)
     {
-        if (!preg_match("/[+-]((1[0-2])|0?\d)\:[0-5]\d/", $userUTC)) {
+        if (!preg_match("/[+-]((1[0-2])|(0?\d))\:[0-5]\d/", $userUTC)) {
             throw new Exception("時區格式錯誤");
         }
         $this->_userUTC = $userUTC;

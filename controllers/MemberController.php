@@ -4,50 +4,18 @@ class MemberController extends Controller
     private $_dao;
     public function __construct()
     {
-        require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/member/MemberService.php";
-        $this->_dao = (new MemberService())->getDAO();
-        $this->model("member");
-    }
-
-    private function jsonToModel($str, $isInsert = false)
-    {
-        $obj = json_decode($str);
-        if ($isInsert) {
-            $obj->_userStatus = true;
-            $obj->_creationDate = "?????";
-            $obj->_changeDate = "????";
-        }
-        try {
-            $member = new Member(
-                $obj->_userID,
-                $obj->_userName,
-                $obj->_userEmail,
-                $obj->_userPhone,
-                $obj->_userStatus,
-                $obj->_creationDate,
-                $obj->_changeDate,
-                $obj->_userUTC,
-                $obj->_userPassword
-            );
-        } catch (Exception $err) {
-            return false;
-        }
-
-        return $member;
+        $this->requireDAO("member");
     }
 
     public function insertByObj($str)
     {
 
-        if (!($member = $this->jsonToModel($str, true))) {
-            return false;
-        }
-        $password = $member->getUserPassword();
-        if (!preg_match("/\w{6,30}/", $password)) {
+        if (!($member = $this->getJsonToModel("member", $str, true))) {
             return false;
         }
 
-        if ($this->_dao->insertMemberByObj($member)) {
+
+        if (MemberService::getDAO()->insertMemberByObj($member)) {
             return true;
         }
 
@@ -56,7 +24,7 @@ class MemberController extends Controller
 
     public function update($str)
     {
-        if (!($member = $this->jsonToModel($str))) {
+        if (!($member = $this->getJsonToModel("member", $str))) {
             return false;
         }
 
@@ -65,7 +33,7 @@ class MemberController extends Controller
             return false;
         }
 
-        if ($this->_dao->updateMember($member)) {
+        if (MemberService::getDAO()->updateMember($member)) {
             return true;
         }
         return false;
@@ -73,7 +41,7 @@ class MemberController extends Controller
 
     public function delete($id)
     {
-        if ($this->_dao->deleteMemberByID($id)) {
+        if (MemberService::getDAO()->deleteMemberByID($id)) {
             return true;
         }
         return false;
@@ -81,7 +49,7 @@ class MemberController extends Controller
 
     public function getAll()
     {
-        if ($members = $this->_dao->getAllMember()) {
+        if ($members = MemberService::getDAO()->getAllMember()) {
             return json_encode($members);
         }
         return false;
@@ -89,7 +57,7 @@ class MemberController extends Controller
 
     public function getOne($id)
     {
-        if ($member = $this->_dao->getOneMemberByID($id)) {
+        if ($member = MemberService::getDAO()->getOneMemberByID($id)) {
             $a = json_encode($member);
             return $a;
         }
@@ -98,8 +66,8 @@ class MemberController extends Controller
 
     public function login($id, $password)
     {
-        if ($this->_dao->doLogin($id, $password) == 1) {
-            $member = $this->_dao->getOneMemberByID($id);
+        if (MemberService::getDAO()->doLogin($id, $password) == 1) {
+            $member = MemberService::getDAO()->getOneMemberByID($id);
 
             $_SESSION["userID"] = $member->getUserID();
             $_SESSION["userName"] = $member->getUserName();
@@ -125,6 +93,6 @@ class MemberController extends Controller
 
     public function checkMemberExist($id)
     {
-        return ($this->_dao->checkMemberExist($id)) > 0;
+        return (MemberService::getDAO()->checkMemberExist($id)) > 0;
     }
 }

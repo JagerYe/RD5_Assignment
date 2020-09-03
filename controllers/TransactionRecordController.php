@@ -4,49 +4,16 @@ class TransactionRecordController extends Controller
     private $_dao;
     public function __construct()
     {
-        require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/transactionRecord/TransactionRecordService.php";
-        require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/member/MemberService.php";
-        $this->_dao = (new TransactionRecordService())->getDAO();
-        $this->model("transactionRecord");
-    }
-
-    private function jsonToModel($str, $isInsert = false)
-    {
-        $obj = json_decode($str);
-
-        //如新增時id就亂塞，最後由DB來生
-        if ($isInsert) {
-            $obj->_recordID = "???";
-        }
-
-        //這些參數由DB來生
-        $obj->_transactionDate = "2020/02/02 02:02:02";
-        $obj->_transactionChangeDate = "2020/02/02 02:02:02";
-
-        //交易狀態暫時不做
-        try {
-            $order = new TransactionRecord(
-                $obj->_recordID,
-                $obj->_userID,
-                $obj->_transactionAmount,
-                $obj->_transactionDate,
-                $obj->_transactionChangeDate,
-                $obj->_userUTC
-            );
-        } catch (Exception $err) {
-            return false;
-        }
-
-        return $order;
+        $this->requireDAO("transactionRecord");
     }
 
     public function insertByObj($str)
     {
-        if (!($record = $this->jsonToModel($str, true))) {
+        if (!($record = $this->getJsonToModel("transactionRecord", $str, true))) {
             return false;
         }
 
-        if ($id = $this->_dao->insertTransactionRecordByObj($record)) {
+        if (TransactionRecordService::getDAO()->insertTransactionRecordByObj($record)) {
             return true;
         }
 
@@ -55,11 +22,11 @@ class TransactionRecordController extends Controller
 
     public function update($str)
     {
-        if (!($record = $this->jsonToModel($str))) {
+        if (!($record = $this->getJsonToModel("transactionRecord", $str))) {
             return false;
         }
 
-        if ($id = $this->_dao->updateTransactionRecord($record)) {
+        if ($id = TransactionRecordService::getDAO()->updateTransactionRecord($record)) {
             return true;
         }
         return false;
@@ -67,7 +34,7 @@ class TransactionRecordController extends Controller
 
     public function delete($id)
     {
-        if ($this->_dao->deleteTransactionRecordByID($id)) {
+        if (TransactionRecordService::getDAO()->deleteTransactionRecordByID($id)) {
             return true;
         }
         return false;
@@ -76,7 +43,7 @@ class TransactionRecordController extends Controller
     public function getAll($userUTC)
     {
 
-        if ($records = $this->_dao->getAllTransactionRecords()) {
+        if ($records = TransactionRecordService::getDAO()->getAllTransactionRecords()) {
             return json_encode($records);
         }
         return false;
@@ -84,7 +51,7 @@ class TransactionRecordController extends Controller
 
     public function getOne($userUTC, $id)
     {
-        if ($record = $this->_dao->getOneTransactionRecordByID($id)) {
+        if ($record = TransactionRecordService::getDAO()->getOneTransactionRecordByID($id)) {
             return json_encode($record);
         }
         return false;
@@ -95,23 +62,24 @@ class TransactionRecordController extends Controller
         if (!isset($_SESSION['userID'])) {
             return false;
         }
-        if ($records = $this->_dao->getTransactionRecordByUserID($id)) {
+        if ($records = TransactionRecordService::getDAO()->getTransactionRecordByUserID($id)) {
             return json_encode($records);
         }
         return false;
     }
 
-    public function getUserBalance($id)
+    public function getUserBalance()
     {
-        if ($balance = $this->_dao->getUserBalance($id)) {
+        if ($balance = TransactionRecordService::getDAO()->getUserBalance($_SESSION["userID"])) {
+            $i = strlen($balance);
             return json_encode($balance);
         }
         return false;
     }
 
-    public function getUserHistoricalRecord($id)
+    public function getUserHistoricalRecord()
     {
-        if ($records = $this->_dao->getUserHistoricalRecord($id)) {
+        if ($records = TransactionRecordService::getDAO()->getUserHistoricalRecord($_SESSION['userID'])) {
             return json_encode($records);
         }
         return false;

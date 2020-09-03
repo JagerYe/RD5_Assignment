@@ -33,15 +33,15 @@
 </head>
 <script>
 	//防止重新導入這，倒入這就直接回首頁
-	$("body").css("display","none");
+	$("body").css("display", "none");
 	$.ajax({
 		type: "GET",
 		url: "/RD5_Assignment/member/getSessionUserName"
 	}).then(function (e) {
 		if (e) {
 			window.location.href = "/RD5_Assignment/views/pageFront/index_.html";
-		}else{
-			$("body").css("display","inline");
+		} else {
+			$("body").css("display", "inline");
 		}
 	});
 </script>
@@ -50,7 +50,7 @@
 
 	$(window).ready(() => {
 
-		$("#userPassword_").change(function (e) {
+		$("#userPassword_").change(() => {
 			if ($("#userPassword").val() != $("#userPassword_").val()) {
 				$("#passwordCheckMessage").text("密碼不一致！");
 			} else {
@@ -58,7 +58,15 @@
 			}
 		});
 
-		$("#userID").change(function (e) {
+		$("#userPassword").change(() => {
+			if (!($("#userPassword").val()).match(/\w{6,30}/)) {
+				$("#passwordCheckMessage").text("密碼格式錯誤！");
+			} else {
+				$("#passwordCheckMessage").empty();
+			}
+		});
+
+		$("#userID").change(() => {
 			$.ajax({
 				type: "GET",
 				url: `/RD5_Assignment/member/checkMemberExist?id=${$("#userID").val()}`
@@ -66,17 +74,27 @@
 				if (e) {
 					$("#idCheckMessage").text("此帳號有人使用");
 				} else {
-					$("#idCheckMessage").text("");
+					$("#idCheckMessage").empty();
+				}
+				if (!($("#userID").val()).match(/\w{6,30}/)) {
+					$("#idCheckMessage").text("帳號格式錯誤");
 				}
 			});
 		});
 
 		$("#btnSub").click(() => {
-			let member = new Member($("#userID").val(),
+			let gmtStrIndex = (new Date()).toString().indexOf("GMT");
+			let timeZone = (new Date()).toString()
+				.substring(gmtStrIndex + 3, gmtStrIndex + 8).replace(/00/, ":00");
+			let member = new Member(
+				$("#userID").val(),
 				$("#userName").val(),
 				$("#userEmail").val(),
 				$("#userPhone").val(),
 				true,
+				"",
+				"",
+				timeZone,
 				$("#userPassword").val());
 			if ((member.userPassword != $("#userPassword_").val()) || !member.userPassword.match(/\w{6,30}/)) {
 				alert("密碼格式錯誤！");

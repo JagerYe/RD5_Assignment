@@ -1,41 +1,11 @@
-<script type="module" src="/RD5_Assignment/views/js/title.js"></script>
-<script type="module">
-	import { Commodity } from "../js/models/commodity.js";
-	import { CommodityViewModel } from "../js/viewModels/commodityViewModel.js";
+_currentAmount: "10000"
+_dateRule: "/\d{1,4}-((1[0-2])|(0?[1-9]))-((3[01])|([12]\d)|(0?[1-9])) ((2[0-4])|([01]?\d)){1}\:[0-5][0-9]\:[0-5][0-9]/"
+_recordID: "14"
+_status: null
+_transactionAmount: "10000"
+_transactionChangeDate: "2020-09-03 14:55:33"
+_transactionDate: "2020-09-03 14:55:33"
+_userID: "a123456"
+_userUTC: "+00:00"
 
-	$(window).ready(() => {
-		$.ajax({
-			type: "GET",
-			url: "/RD5_Assignment/commodity/getAll"
-		}).then(function (e) {
-			// 顯示所有商品
-			$(".show").html("");
-			let objs = JSON.parse(e);
-			for (let item of objs) {
-				let commodity = new Commodity(
-					item['_commodityID'],
-					item['_commodityName'],
-					item['_commodityPrice'],
-					item['_commodityQuantity'],
-					item['_commodityStatus'],
-					item['_commodityText']
-				);
-				if (commodity.commodityStatus == "close" || commodity.commodityQuantity <= 0 || item.commodityPrice <= 0) {
-					continue;
-				}
-				$(".show").append(CommodityViewModel.getMenuView(commodity.commodityID, commodity._commodityName, commodity._commodityPrice));
-			}
-		});
-
-
-		// $(".show").html("");
-		// commoditys.forEach(commodity => {
-		// 	if (item.commodityStatus == "close" || item.commodityQuantity <= 0 || item.commodityPrice <= 0) {
-		// 		return;
-		// 	}
-		// 	$(".show").append(CommodityViewModel.getMenuView(item.commodityID, item._commodityName, item._commodityPrice));
-		// });
-	});
-
-
-</script>
+jsonObj._transactionDate.length

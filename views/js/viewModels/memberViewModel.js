@@ -2,7 +2,7 @@ export class MemberViewModel {
     static getManagerView(id, phone, name, status) {
         return `<li class="row">
                     <div class="col-3">
-                        <img src="/PID_Assignment/views/img/gravatar.jpg"><br>
+                        <img src="/RD5_Assignment/views/img/gravatar.jpg"><br>
                     </div>
                     <div class="col-2">${id}</div>
                     <div class="col-2">${phone}</div>

@@ -8,8 +8,8 @@ class MemberDAO_PDO implements MemberDAO
     private $_strUpdate = "UPDATE `Members` SET `userName`=:userName,`userEmail`=:userEmail,`userPhone`=:userPhone,`userStatus`=:userStatus,`changeDate`=CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC) WHERE `userID`=:userID;";
     private $_strDelete = "DELETE FROM `Members` WHERE `userID` = :userID;";
     private $_strCheckMemberExist = "SELECT COUNT(*) FROM `Members` WHERE `userID` = :userID;";
-    private $_strGetAll = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, CONVERT_TZ(`creationDate`,(SELECT @@time_zone),:userUTC) AS 'creationDate',  CONVERT_TZ(`changeDate`,(SELECT @@time_zone),:userUTC) AS 'changeDate' FROM `Members`;";
-    private $_strGetOne = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, CONVERT_TZ(`creationDate`,(SELECT @@time_zone),:userUTC) AS 'creationDate',  CONVERT_TZ(`changeDate`,(SELECT @@time_zone),:userUTC) AS 'changeDate' FROM `Members` WHERE `userID` = :userID;";
+    private $_strGetAll = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, `creationDate`,  `changeDate` FROM `Members`;";
+    private $_strGetOne = "SELECT `userID`, `userPassword`, `userName`, `userEmail`, `userPhone`, `userStatus`, `creationDate`,  `changeDate` FROM `Members` WHERE `userID` = :userID;";
     private $_strLoginID = "SELECT COUNT(`userID`) FROM `members` WHERE `userID`=:userID AND `userStatus` = true;";
     private $_strLoginPassword = "SELECT `userPassword` FROM `members` WHERE `userID`=:userID";
 
@@ -17,7 +17,7 @@ class MemberDAO_PDO implements MemberDAO
     public function insertMember($id, $password, $name, $email, $phone, $status, $userUTC)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strInsert);
             $sth->bindParam("userID", $id);
@@ -57,7 +57,7 @@ class MemberDAO_PDO implements MemberDAO
     public function updateMember($member)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strUpdate);
             $sth->bindParam("userID", $member->getUserID());
@@ -82,7 +82,7 @@ class MemberDAO_PDO implements MemberDAO
     public function deleteMemberByID($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strCheckMemberExist);
             $sth->bindParam("userID", $id);
@@ -107,7 +107,7 @@ class MemberDAO_PDO implements MemberDAO
     public function getAllMember()
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->query($this->_strGetAll);
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
             $sth = null;
@@ -122,7 +122,7 @@ class MemberDAO_PDO implements MemberDAO
     public function getOneMemberByID($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetOne);
             $sth->bindParam("userID", $id);
             $sth->execute();
@@ -139,7 +139,7 @@ class MemberDAO_PDO implements MemberDAO
     public function doLogin($id, $password)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strLoginID);
             $sth->bindParam("userID", $id);
             $sth->execute();
@@ -163,7 +163,7 @@ class MemberDAO_PDO implements MemberDAO
     public function checkMemberExist($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strCheckMemberExist);
             $sth->bindParam("userID", $id);

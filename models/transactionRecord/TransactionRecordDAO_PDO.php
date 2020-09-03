@@ -49,23 +49,26 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     private $_strGetBalance = "SELECT SUM(`transactionAmount`) 
                                 FROM `TransactionRecord` 
                                 WHERE `userID`=:userID AND `status`='success';";
-    private $_strGetHistoricalRecord = "SELECT 
-                                        `recordID`, 
+    private $_strGetHistoricalRecord = "SELECT `recordID`,
                                         `transactionDate`,
+                                        `transactionChangeDate`,
                                         `transactionAmount`,
-                                        (SELECT SUM(`transactionAmount`) 
+                                        (SELECT SUM(`transactionAmount`)
                                             FROM `TransactionRecord` AS t2 
                                             WHERE t2.`userID`=t1.`userID` 
-                                                AND ((t2.`recordID`<t1.`recordID`) OR (t2.`recordID`=t1.`recordID`))) 
-                                        AS `currentAmount` 
-                                        FROM `TransactionRecord` AS t1 
-                                        WHERE `userID`=:userID ORDER BY `transactionDate` DESC";
+                                            AND ((t2.`transactionChangeDate`<t1.`transactionChangeDate`)
+                                                OR (t2.`transactionChangeDate`=t1.`transactionChangeDate`))
+                                            AND `status`='success'
+                                        ) AS `currentAmount`
+                                        FROM `TransactionRecord` AS t1
+                                        WHERE `userID`=:userID AND `status`='success'
+                                        ORDER BY `transactionDate` DESC;";
 
     //新增
     public function insertTransactionRecord($userID, $transactionAmount, $userUTC, $status)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strInsert);
             $sth->bindParam("userID", $userID);
@@ -99,7 +102,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function updateTransactionRecord($record)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strUpdate);
             $sth->bindParam("transactionAmount", $record->getTransactionAmount());
@@ -120,7 +123,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function deleteTransactionRecordByID($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $dbh->beginTransaction();
             $sth = $dbh->prepare($this->_strCheckRecordExist);
             $sth->bindParam("recordID", $id);
@@ -145,7 +148,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function getAllTransactionRecords()
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetAll);
             $sth->execute();
             $request = $sth->fetchAll(PDO::FETCH_ASSOC);
@@ -160,7 +163,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function getOneTransactionRecordByID($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetOne);
             $sth->bindParam("recordID", $id);
             $sth->execute();
@@ -176,7 +179,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function getTransactionRecordByUserID($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetUserID);
             $sth->bindParam("userID", $id);
             $sth->execute();
@@ -193,7 +196,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function getUserBalance($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetBalance);
             $sth->bindParam("userID", $id);
             $sth->execute();
@@ -210,7 +213,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     public function getUserHistoricalRecord($id)
     {
         try {
-            $dbh = (new Config)->getDBConnect();
+            $dbh = Config::getDBConnect();
             $sth = $dbh->prepare($this->_strGetHistoricalRecord);
             $sth->bindParam("userID", $id);
             $sth->execute();

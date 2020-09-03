@@ -43,7 +43,7 @@
 				type: "GET",
 				url: "/RD5_Assignment/member/logout"
 			}).then(() => {
-				history.go(-1);
+				window.location.href = "/RD5_Assignment/views/pageFront/index_.html";
 			});
 		} else {
 			$("body").css("display", "inline");
@@ -68,7 +68,7 @@
 				data: data
 			}).then(function (e) {
 				if (e) {
-					history.go(-1);
+					window.location.href = "/RD5_Assignment/views/pageFront/index_.html";
 					return;
 				}
 				alert("帳密錯誤");

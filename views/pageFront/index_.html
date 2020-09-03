@@ -37,11 +37,187 @@
 	}
 </style>
 <script src="/RD5_Assignment/views/js/viewModels/showViewModel.js"></script>
-<script>
+<script src="/RD5_Assignment/views/js/viewModels/transactionRecordViewModel.js"></script>
+<script type="module">
+	import { TransactionRecord } from "../js/models/transactionRecord.js";
+	import { Member } from "../js/models/member.js";
+
+	let gmtStrIndex = (new Date()).toString().indexOf("GMT");
+	let name;
+	let balance = 0;
+	let records;
+	let index = 0;
+	let month;
+
+	$("body").css("visibility", "hidden");
 	$(window).ready(() => {
-		$("#mainShow").html(showIndex());
-		$("#featuresShow").html(showDepositAndWithdrawal());
+		$.ajax({
+			type: "GET",
+			url: "/RD5_Assignment/member/getSessionUserName"
+		}).then(function (e) {
+			name = e;
+			if (e) {
+				updateBalance();
+				$("#mainShow").html(getShowIndex(name));
+				$("#featuresShow").html(getShowMenu());
+				$("#showUserName").text(name);
+				$("#showLogin").text("登出");
+				$("#showRegistered").css("display", "none");
+				setNavigationOnclick(name);
+			} else {
+				$("#mainShow").html(getShowUnlogin());
+				setNavigationOnclick();
+			}
+
+			$("body").css("visibility", "visible");
+		});
+
+
 	});
+
+	//更新餘額動作
+	function updateBalance() {
+		$.ajax({
+			type: "GET",
+			url: "/RD5_Assignment/transactionRecord/getUserBalance"
+		}).then(function (e) {
+			e = e.replace("\"", "").replace("\"", "");
+			if (!e) e = "0";
+			balance = parseInt(e);
+			$("#showBalance").text(`目前餘額：${balance}`);
+		});
+
+	}
+
+	//重設click事件
+	function setNavigationOnclick() {
+		$(".deposit").off("click");
+		$(".withdrawal").off("click");
+		$(".showDetail").off("click");
+
+		//存入動作
+		$(".deposit").click(() => {
+			transaction(false);
+		});
+
+		//提出動作
+		$(".withdrawal").click(() => {
+			transaction(true);
+		});
+
+		//交易明細
+		$(".showDetail").click(() => {
+			checkLogin();
+			$.ajax({
+				type: "GET",
+				url: "/RD5_Assignment/transactionRecord/getUserHistoricalRecord"
+			}).then(function (e) {
+				let jsonArr = JSON.parse(e);
+				records = new Array();
+				jsonArr.forEach(jsonObj => {
+					let record = new TransactionRecord(
+						jsonObj._recordID,
+						jsonObj._transactionAmount,
+						jsonObj._userUTC,
+						jsonObj._userID,
+						jsonObj._currentAmount,
+						jsonObj._transactionDate,
+						jsonObj._transactionChangeDate
+					);
+					records.push(record);
+				});
+
+				if (!e) {
+					alert("沒有交易紀錄！");
+					return;
+				}
+				$("#featuresShow").empty();
+				index = 0;
+				showDetail();
+			});
+		});
+	}
+
+	//生成交易明細用
+	function showDetail() {
+		for (let firstIndex = index; index < records.length; index++) {
+			let record = records[index];
+			let month_ = record.transactionDate.substring(5, 7);
+			let day = record.transactionDate.substring(8, 10);
+			let time = record.transactionDate.substring(11, record.transactionDate.length);
+			let deposit;
+			let withdrawal;
+
+			if (firstIndex == index) {
+				month = month_;
+				$(".showMoreRecord").empty().css("display", "none");
+				$("#featuresShow").append(getMonthShow(month));
+			}
+
+			if (month != month_) {
+				$(`#showMoreRecord${month}`).css("display", "inline").click(() => {
+					showDetail();
+				});
+				month = month_;
+				break;
+			}
+			if (record.transactionAmount < 0) {
+				deposit = " ";
+				withdrawal = -record.transactionAmount;
+			} else {
+				deposit = record.transactionAmount;
+				withdrawal = " ";
+			}
+			$(`#day${month}`).append(getDayShow(day, time, deposit, withdrawal, record.currentAmount));
+
+		}
+
+
+	}
+
+	//交易動作
+	function transaction(isOutput) {
+		checkLogin();
+		$("#featuresShow").html(getShowDepositAndWithdrawal(isOutput));
+		if (isOutput) {
+			$("#inputAmount").attr({ "max": parseInt(balance) });
+		}
+		$("#btnSub").click(() => {
+			let amount = (isOutput) ? $("#inputAmount").val() * -1 : $("#inputAmount").val();
+			let requstStr = (isOutput) ? "提出" : "存入";
+			let timeZone = (new Date()).toString()
+				.substring(gmtStrIndex + 3, gmtStrIndex + 8).replace(/00/, ":00");
+
+			let record = new TransactionRecord(
+				"???",
+				amount,
+				timeZone
+			);
+			let postDate = {
+				jsonStr: JSON.stringify(record)
+			};
+			$.ajax({
+				type: "GET",
+				url: "/RD5_Assignment/transactionRecord/insertByObj",
+				data: postDate
+			}).then(function (e) {
+				if (e) {
+					alert(`${requstStr}成功`);
+					history.go(0);
+				} else {
+					alert(`${requstStr}失敗`);
+				}
+			});
+		});
+	}
+
+	//判斷是否登入
+	function checkLogin() {
+		if (!name) {
+			alert("您尚未登入，請先登入");
+			window.location.href = "login.html";
+		}
+	}
 </script>
 
 <body>
@@ -68,13 +244,13 @@
 			</ul>
 			<ul class="navbar-nav my-2 my-lg-0">
 				<li class="nav-item active">
-					<div class="nav-link showUserName" id="showUserName">userName</div>
+					<div class="nav-link showUserName" id="showUserName"></div>
 				</li>
 				<li class="nav-item active">
-					<a class="nav-link" href="login.html">登入</a>
+					<a class="nav-link" href="login.html" id="showLogin">登入</a>
 				</li>
 				<li class="nav-item active">
-					<a class="nav-link" href="registered.html">註冊</a>
+					<a class="nav-link" href="registered.html" id="showRegistered">註冊</a>
 				</li>
 			</ul>
 		</div>
@@ -86,13 +262,7 @@
 		<div class="row">
 			<div class="col-1"></div>
 			<div class="col" id="mainShow">
-				<!-- <h1>您好！ ${name}</h1>
-				<p>目前餘額：${balance}</p>
-				<div id="featuresShow">
-					<h2>請輸入存入金額</h2>
-					<div><input id="inputAmount" type="number" min="0" value="0"></div><br>
-					<div><button id="btnInputSub" type="button" class="btn btn-primary btn-lg btn-block">存入</button></div>
-				</div> -->
+				<!--主要顯示區-->
 			</div>
 			<div class="col-1"></div>
 		</div>
