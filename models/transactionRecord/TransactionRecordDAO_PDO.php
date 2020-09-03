@@ -4,13 +4,18 @@ require_once "{$_SERVER['DOCUMENT_ROOT']}/RD5_Assignment/models/config.php";
 class TransactionRecordDAO_PDO implements TransactionRecordDAO
 {
 
-    private $_strInsert = "INSERT INTO `TransactionRecord`
-                            (`userID`, `transactionAmount`, `transactionDate`, `transactionChangeDate`, `status`) 
-                            VALUES (:userID,
-                                    :transactionAmount,
-                                    CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),
-                                    CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),
-                                    :status);";
+    private $_strInsert = "INSERT INTO`TransactionRecord`
+    (`userID`,`transactionAmount`,`transactionDate`,`transactionChangeDate`,`status`) VALUES (
+    :userID,
+    (
+    SELECT :transactionAmount FROM `TransactionRecord` as t2 WHERE 
+    `recordID`=1 AND
+     (:transactionAmount*-1)<(SELECT NVL(SUM(`transactionAmount`),0) FROM `TransactionRecord` AS t3 
+          WHERE `userID`=:userID AND `status`='success')
+    ),
+    CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),
+    CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),
+    :status);";
     private $_strUpdate = "UPDATE `TransactionRecord` 
                             SET `transactionAmount`=:transactionAmount,
                                 `transactionChangeDate`=CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),
