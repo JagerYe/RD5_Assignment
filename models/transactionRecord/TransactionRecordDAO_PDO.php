@@ -10,7 +10,7 @@ class TransactionRecordDAO_PDO implements TransactionRecordDAO
     (
     SELECT :transactionAmount FROM `TransactionRecord` as t2 WHERE 
     `recordID`=1 AND
-     (:transactionAmount*-1)<(SELECT NVL(SUM(`transactionAmount`),0) FROM `TransactionRecord` AS t3 
+     (:transactionAmount*-1)<(SELECT IFNULL(SUM(`transactionAmount`),0) FROM `TransactionRecord` AS t3 
           WHERE `userID`=:userID AND `status`='success')
     ),
     CONVERT_TZ(NOW(),(SELECT @@time_zone),:userUTC),

@@ -45,6 +45,7 @@
 	let gmtStrIndex = (new Date()).toString().indexOf("GMT");
 	let name;
 	let balance = 0;
+	let showBalance = true;
 	let records;
 	let index = 0;
 	let month;
@@ -81,9 +82,14 @@
 			type: "GET",
 			url: "/RD5_Assignment/transactionRecord/getUserBalance"
 		}).then(function (e) {
-			e = e.replace("\"", "").replace("\"", "");
-			if (!e) e = "0";
-			balance = parseInt(e);
+			if (showBalance) {
+				e = e.replace("\"", "").replace("\"", "");
+				if (!e) e = "0";
+				balance = parseInt(e) + " 點按這隱藏餘額";
+			} else {
+				balance = "****** 點按這顯示餘額";
+			}
+
 			$("#showBalance").text(`目前餘額：${balance}`);
 		});
 
@@ -94,6 +100,13 @@
 		$(".deposit").off("click");
 		$(".withdrawal").off("click");
 		$(".showDetail").off("click");
+		$("#showBalance").off("click");
+
+		//顯示餘額動作
+		$("#showBalance").click(() => {
+			showBalance = !showBalance;
+			updateBalance();
+		});
 
 		//存入動作
 		$(".deposit").click(() => {
@@ -205,6 +218,7 @@
 					alert(`${requstStr}成功`);
 					history.go(0);
 				} else {
+					updateBalance();
 					alert(`${requstStr}失敗`);
 				}
 			});

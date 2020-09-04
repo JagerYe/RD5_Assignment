@@ -1,6 +1,6 @@
 function getShowIndex(name) {
     return `<h1>您好！ ${name}</h1>
-            <p id="showBalance">目前餘額：</p>
+            <p class="btn" id="showBalance">目前餘額：</p>
             <div id="featuresShow"></div>`;
 }
 
