@@ -210,7 +210,7 @@
 				jsonStr: JSON.stringify(record)
 			};
 			$.ajax({
-				type: "GET",
+				type: "POST",
 				url: "/RD5_Assignment/transactionRecord/insertByObj",
 				data: postDate
 			}).then(function (e) {
