@@ -2,6 +2,7 @@
 
 使用步驟：<br>
 （１）至MySQL中初始化DB，初始化檔案路徑：/RD5_Assignment/moreDate/createDatabaseAndSampleData.sql<br>
+（２）首頁：http://localhost:8888/RD5_Assignment/views/pageFront/index_.html<br>
 <br>
 已完成功能：<br>
 （１）會員註冊<br>
